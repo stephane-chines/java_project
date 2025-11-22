@@ -1,0 +1,34 @@
+# NetBeans
+nbproject/private/
+nbbuild/
+build/
+dist/
+.nbm/
+nbactions.xml
+nb-configuration.xml
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+*.zip
+*.tar.gz
+*.rar
+
+# Maven / Gradle / IntelliJ
+target/
+out/
+.build/
+.gradle/
+.gradle/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
