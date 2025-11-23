@@ -118,6 +118,29 @@ public class Tournoi
         return Collections.unmodifiableList(tous);
     }
 
+    // Liste de tous les arbitres du tournoi
+    public List<Arbitre> getArbitres()
+    {
+        return Collections.unmodifiableList(arbitres);
+    }
+
+    // Liste de tous les spectateurs (réserve manuelle + ceux générés pour les matchs)
+    public List<Spectateur> getSpectateurs()
+    {
+        List<Spectateur> tous = new ArrayList<>(reservesSpectateurs);
+        // Ajouter aussi tous les spectateurs présents dans les matchs déjà joués
+        for (Match match : matchsJoues)
+        {
+            tous.addAll(match.getSpectateurs());
+        }
+        // Et ceux des matchs à venir
+        for (Match match : matchsAVenir)
+        {
+            tous.addAll(match.getSpectateurs());
+        }
+        return Collections.unmodifiableList(tous);
+    }
+
     // Affiche les stats d'un joueur pour chacun de ses matchs joués dans le tournoi
     public void afficherStatsPourJoueur(Joueur joueur)
     {

@@ -1,8 +1,10 @@
 package tennis.jeu;
 
+import java.util.List;
 import java.util.Random;
 import tennis.personnages.Arbitre;
 import tennis.personnages.Joueur;
+import tennis.personnages.Spectateur;
 import tennis.stats.StatistiquesMatch;
 
 /**
@@ -17,6 +19,7 @@ public class JeuDecisif
     private final Joueur serveurInitial;
     private final StatistiquesMatch statsJoueur1;
     private final StatistiquesMatch statsJoueur2;
+    private final List<Spectateur> spectateurs;
     private final Random generateur = new Random();
 
     private int pointsJoueur1;
@@ -24,7 +27,7 @@ public class JeuDecisif
     private Joueur vainqueur;
 
     public JeuDecisif(Joueur joueur1, Joueur joueur2, Joueur serveurInitial, Arbitre arbitre,
-            StatistiquesMatch statsJoueur1, StatistiquesMatch statsJoueur2) 
+            StatistiquesMatch statsJoueur1, StatistiquesMatch statsJoueur2, List<Spectateur> spectateurs) 
     {
         // Petit contrôle: mieux vaut bloquer tôt que réparer tard
         if (joueur1 == null || joueur2 == null || arbitre == null || serveurInitial == null
@@ -43,6 +46,7 @@ public class JeuDecisif
         this.serveurInitial = serveurInitial;
         this.statsJoueur1 = statsJoueur1;
         this.statsJoueur2 = statsJoueur2;
+        this.spectateurs = spectateurs;
     }
 
     // Joue le tie-break jusqu'à trouver un gagnant. 
@@ -71,7 +75,7 @@ public class JeuDecisif
 
             if (mode == ModeJeu.MANUEL) 
             {
-                Echange echange = new Echange(serveurActuel, receveur, arbitre);
+                Echange echange = new Echange(serveurActuel, receveur, arbitre, spectateurs);
                 Echange.Resultat resultat = echange.jouerPoint();
                 enregistrerServices(statsServeur, resultat);
                 if (resultat.doubleFaute)

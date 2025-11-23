@@ -10,8 +10,8 @@ import java.util.stream.Collectors;
 import tennis.personnages.Arbitre;
 import tennis.personnages.Joueur;
 import tennis.personnages.Spectateur;
-import tennis.stats.StatistiquesMatch;
 import tennis.son.Son;
+import tennis.stats.StatistiquesMatch;
 
 /**
  * Représente un match de tennis entre deux joueurs géré par un arbitre.
@@ -136,7 +136,7 @@ public class Match
             int ptsAvantJ2 = statsAvantJ2.getTotalPointsRemportes();
 
             Set set = new Set(joueur1, joueur2, serveurActuel, arbitre, autoriseTieBreakDansCeSet,
-            statistiquesParJoueur.get(joueur1), statistiquesParJoueur.get(joueur2));
+            statistiquesParJoueur.get(joueur1), statistiquesParJoueur.get(joueur2), spectateurs);
             set.jouerSet(mode, afficherDetails);
 // on a décidé d'utiliser le score du set directement (inclut le détail du TB si dispo)
             Joueur gagnantDuSet = set.getVainqueur();

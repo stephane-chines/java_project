@@ -11,6 +11,8 @@ import tennis.stats.StatistiquesCarriere;
 public class Joueur extends Personne implements ActionsSpectateur
 {
 
+   
+
     // Enumération pour indiquer la main dominante d’un joueur.
     public enum MainDeJeu
     {

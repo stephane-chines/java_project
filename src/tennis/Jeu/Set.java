@@ -1,7 +1,9 @@
 package tennis.jeu;
 
+import java.util.List;
 import tennis.personnages.Arbitre;
 import tennis.personnages.Joueur;
+import tennis.personnages.Spectateur;
 import tennis.stats.StatistiquesMatch;
 
 /**
@@ -13,6 +15,7 @@ public class Set
 	private final Joueur joueur1;
 	private final Joueur joueur2;
 	private final Arbitre arbitre;
+	private final List<Spectateur> spectateurs;
     
     private int scoreJeuxJoueur1 = 0;
     private int scoreJeuxJoueur2 = 0;
@@ -34,7 +37,7 @@ public class Set
 	private Integer tbPointsJ2 = null;
 
     public Set(Joueur joueur1, Joueur joueur2, Joueur premierServeur, Arbitre arbitre, boolean tieBreakAutorise,
-            StatistiquesMatch statsJoueur1, StatistiquesMatch statsJoueur2) 
+            StatistiquesMatch statsJoueur1, StatistiquesMatch statsJoueur2, List<Spectateur> spectateurs) 
     {
 		// Petit filet de sécurité: éviter les paramètres bizarres qui cassent la logique
 		if (joueur1 == null || joueur2 == null || arbitre == null || premierServeur == null)
@@ -49,6 +52,7 @@ public class Set
 		this.arbitre = arbitre;
 		this.serveurActuel = premierServeur;
         this.tieBreakAutorise = tieBreakAutorise;
+        this.spectateurs = spectateurs;
         this.statsJoueur1 = statsJoueur1;
         this.statsJoueur2 = statsJoueur2;
 
@@ -66,7 +70,7 @@ public class Set
             {
 				// ici on a préféré mémoriser qui sert au début du TB pour décider le serveur du prochain set
 				this.premierServeurTieBreak = serveurActuel;
-				JeuDecisif tieBreak = new JeuDecisif(joueur1, joueur2, serveurActuel, arbitre, statsJoueur1, statsJoueur2);
+				JeuDecisif tieBreak = new JeuDecisif(joueur1, joueur2, serveurActuel, arbitre, statsJoueur1, statsJoueur2, spectateurs);
                 tieBreak.jouer(mode, afficherDetails);
                 vainqueur = tieBreak.getVainqueur();
 				// maintenant que les getters existent, on mémorise le détail du TB
@@ -89,7 +93,7 @@ public class Set
                 break;
             }
 
-            Jeu jeu = new Jeu(joueur1, joueur2, serveurActuel, arbitre, statsJoueur1, statsJoueur2);
+            Jeu jeu = new Jeu(joueur1, joueur2, serveurActuel, arbitre, statsJoueur1, statsJoueur2, spectateurs);
             jeu.jouerJeu(mode, afficherDetails);
 
             Joueur gagnantDuJeu = jeu.getVainqueur();

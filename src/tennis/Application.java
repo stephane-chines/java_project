@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
 import java.util.Scanner;
-
 import tennis.erreurs.SaisieInvalideException;
 import tennis.jeu.Match;
 import tennis.jeu.ModeJeu;
@@ -62,6 +61,7 @@ public class Application
                     }
                     case 4 -> afficherInfosJoueurs();
                     case 5 -> genererJoueursAutomatiques();
+                    case 6 -> afficherDescriptionPersonnage();
                     case 0 -> {
                         System.out.println("Merci d'avoir utilisé l'application. À bientôt !");
                         return;
@@ -89,6 +89,7 @@ public class Application
         System.out.println("3. Gérer le tournoi en cours");
         System.out.println("4. Afficher les informations des joueurs créés");
         System.out.println("5. Générer automatiquement des joueurs (ajout à la liste)");
+        System.out.println("6. Afficher la description complète d'une personne");
         System.out.println("0. Quitter");
 		// si perdu, taper 0 pour revenir en arrière, ça evite de tout casser
     }
@@ -119,22 +120,104 @@ public class Application
 			}
 		}
 
-		private void creerJoueur()
-		{
-			System.out.println("\n--- Création d'un joueur ---");
-			System.out.print("Prénom : ");
-			String prenom = scanner.nextLine();
-			System.out.print("Nom : ");
-			String nom = scanner.nextLine();
-			Personne.Genre genre = demanderGenreJoueur();
+	private void creerJoueur()
+	{
+		System.out.println("\n--- Création d'un joueur ---");
+		System.out.print("Prénom : ");
+		String prenom = scanner.nextLine();
+		System.out.print("Nom : ");
+		String nom = scanner.nextLine();
+		Personne.Genre genre = demanderGenreJoueur();
+		
+		// Date de naissance
+		System.out.print("Année de naissance (ex: 1995) : ");
+		int annee = lireEntier(1950, 2010, 1995);
+		System.out.print("Mois de naissance (1-12) : ");
+		int mois = lireEntier(1, 12, 6);
+		System.out.print("Jour de naissance (1-31) : ");
+		int jour = lireEntier(1, 31, 15);
+		LocalDate dateNaissance = LocalDate.of(annee, mois, jour);
+		
+		// Lieu de naissance
+		System.out.print("Lieu de naissance : ");
+		String lieuNaissance = scanner.nextLine();
+		if (lieuNaissance.trim().isEmpty()) lieuNaissance = "Inconnu";
+		
+		// Main de jeu
+		System.out.print("Main de jeu (1: Droitier, 2: Gaucher) : ");
+		String choixMain = scanner.nextLine();
+		Joueur.MainDeJeu mainDeJeu = "2".equals(choixMain) ? Joueur.MainDeJeu.GAUCHER : Joueur.MainDeJeu.DROITIER;
+		
+		// Sponsor
+		System.out.print("Sponsor : ");
+		String sponsor = scanner.nextLine();
+		if (sponsor.trim().isEmpty()) sponsor = "Aucun sponsor";
+		
+		// Entraîneur
+		System.out.print("Entraîneur : ");
+		String entraineur = scanner.nextLine();
+		if (entraineur.trim().isEmpty()) entraineur = "Aucun entraîneur";
+		
+		// Couleur favorite
+		System.out.print("Couleur favorite : ");
+		String couleur = scanner.nextLine();
+		if (couleur.trim().isEmpty()) couleur = "Blanc";
+		
+		// Niveau (réputation)
+		System.out.print("Niveau/Réputation (1-10) : ");
+		int niveau = lireEntier(1, 10, 5);
 
-			Joueur joueur = new Joueur(nom, prenom, genre, LocalDate.now(), "Inconnu",
-					Joueur.MainDeJeu.DROITIER, "Sponsor", "Entraîneur", "Blanc", 5);
-			joueursCrees.add(joueur);
-			System.out.println("Joueur " + joueur + " créé avec succès.");
+		// Création du joueur avec le constructeur existant
+		Joueur joueur = new Joueur(nom, prenom, genre, dateNaissance, lieuNaissance,
+				mainDeJeu, sponsor, entraineur, couleur, niveau);
+		
+		// Ajout des informations complémentaires via setters
+		System.out.print("Nationalité (optionnel, Entrée pour passer) : ");
+		String nationalite = scanner.nextLine();
+		if (!nationalite.trim().isEmpty()) {
+			joueur.setNationalite(nationalite);
 		}
-
-		private void creerArbitre()
+		
+		System.out.print("Taille en cm (ex: 180, Entrée pour passer) : ");
+		String tailleStr = scanner.nextLine();
+		if (!tailleStr.trim().isEmpty()) {
+			try {
+				joueur.setTailleCm(Integer.parseInt(tailleStr));
+			} catch (Exception e) {
+				System.out.println("Taille invalide, ignorée.");
+			}
+		}
+		
+		System.out.print("Poids en kg (ex: 75, Entrée pour passer) : ");
+		String poidsStr = scanner.nextLine();
+		if (!poidsStr.trim().isEmpty()) {
+			try {
+				joueur.setPoidsKg(Integer.parseInt(poidsStr));
+			} catch (Exception e) {
+				System.out.println("Poids invalide, ignoré.");
+			}
+		}
+		
+		System.out.print("Surnom (optionnel, Entrée pour passer) : ");
+		String surnom = scanner.nextLine();
+		if (!surnom.trim().isEmpty()) {
+			joueur.setSurnom(surnom);
+		}
+		
+		// État matrimonial
+		System.out.print("Est marié(e) ? (o/n) : ");
+		String mariageReponse = scanner.nextLine();
+		if (mariageReponse.equalsIgnoreCase("o")) {
+			System.out.print("Nom du conjoint : ");
+			String nomConjoint = scanner.nextLine();
+			if (!nomConjoint.trim().isEmpty()) {
+				joueur.seMarie(nomConjoint);
+			}
+		}
+		
+		joueursCrees.add(joueur);
+		System.out.println("Joueur " + joueur + " créé avec succès.");
+	}		private void creerArbitre()
 		{
 			System.out.println("\n--- Création d'un arbitre ---");
 			System.out.print("Prénom : ");
@@ -147,25 +230,119 @@ public class Application
 			System.out.println("Arbitre " + arbitre + " créé avec succès.");
 		}
 
-		private void creerSpectateur()
+	private void creerSpectateur()
+	{
+		System.out.println("\n--- Création d'un spectateur ---");
+		System.out.print("Prénom : ");
+		String prenom = scanner.nextLine();
+		System.out.print("Nom : ");
+		String nom = scanner.nextLine();
+		Personne.Genre genre = demanderGenreJoueur();
+		
+		// Date de naissance
+		System.out.print("Année de naissance (ex: 1985) : ");
+		int annee = lireEntier(1950, 2010, 1985);
+		System.out.print("Mois de naissance (1-12) : ");
+		int mois = lireEntier(1, 12, 6);
+		System.out.print("Jour de naissance (1-31) : ");
+		int jour = lireEntier(1, 31, 15);
+		LocalDate dateNaissance = LocalDate.of(annee, mois, jour);
+		
+		// Lieu de naissance
+		System.out.print("Lieu de naissance : ");
+		String lieuNaissance = scanner.nextLine();
+		if (lieuNaissance.trim().isEmpty()) lieuNaissance = "Non spécifié";
+		
+		System.out.println("Choisissez le type de billet :");
+		System.out.println("1. Latérale - 30€ (Tribune B)");
+		System.out.println("2. Centre court - 75€ (Tribune A)");
+		System.out.println("3. VIP - 150€ (Tribune VIP)");
+		System.out.print("Votre choix : ");
+		String choixBillet = scanner.nextLine();
+		
+		double prix;
+		String nomTribune;
+		switch (choixBillet) {
+			case "2" -> {
+				prix = 75.0;
+				nomTribune = "Tribune A";
+			}
+			case "3" -> {
+				prix = 150.0;
+				nomTribune = "Tribune VIP";
+			}
+			default -> {
+				prix = 30.0;
+				nomTribune = "Tribune B";
+			}
+		}
+		
+		System.out.print("Numéro de place : ");
+		int numeroPlace = lireEntier(1, 500, 1);
+		
+		tennis.personnages.Spectateur spectateur = new tennis.personnages.Spectateur(
+				nom, prenom, genre, dateNaissance, lieuNaissance,
+				prix, nomTribune, numeroPlace);
+		
+		// Informations optionnelles
+		System.out.print("Nationalité (optionnel, Entrée pour passer) : ");
+		String nationalite = scanner.nextLine();
+		if (!nationalite.trim().isEmpty()) {
+			spectateur.setNationalite(nationalite);
+		}
+		
+		System.out.print("Taille en cm (ex: 170, Entrée pour passer) : ");
+		String tailleStr = scanner.nextLine();
+		if (!tailleStr.trim().isEmpty()) {
+			try {
+				spectateur.setTailleCm(Integer.parseInt(tailleStr));
+			} catch (Exception e) {
+				System.out.println("Taille invalide, ignorée.");
+			}
+		}
+		
+		System.out.print("Poids en kg (ex: 65, Entrée pour passer) : ");
+		String poidsStr = scanner.nextLine();
+		if (!poidsStr.trim().isEmpty()) {
+			try {
+				spectateur.setPoidsKg(Integer.parseInt(poidsStr));
+			} catch (Exception e) {
+				System.out.println("Poids invalide, ignoré.");
+			}
+		}
+		
+		System.out.print("Surnom (optionnel, Entrée pour passer) : ");
+		String surnom = scanner.nextLine();
+		if (!surnom.trim().isEmpty()) {
+			spectateur.setSurnom(surnom);
+		}
+		
+		// État matrimonial
+		System.out.print("Est marié(e) ? (o/n) : ");
+		String mariageReponse = scanner.nextLine();
+		if (mariageReponse.equalsIgnoreCase("o")) {
+			System.out.print("Nom du conjoint : ");
+			String nomConjoint = scanner.nextLine();
+			if (!nomConjoint.trim().isEmpty()) {
+				spectateur.seMarie(nomConjoint);
+			}
+		}
+		
+		// Si c'est un homme, demander la couleur de chemise (seulement pour hommes)
+		if (genre == Personne.Genre.HOMME)
 		{
-			System.out.println("\n--- Création d'un spectateur ---");
-			System.out.print("Prénom : ");
-			String prenom = scanner.nextLine();
-			System.out.print("Nom : ");
-			String nom = scanner.nextLine();
-			Personne.Genre genre = demanderGenreJoueur();
-			System.out.print("Prix du billet (€) : ");
-			double prix = 30.0;
-			try { prix = Double.parseDouble(scanner.nextLine()); } catch (NumberFormatException ignored) {}
-			tennis.personnages.Spectateur spectateur = new tennis.personnages.Spectateur(
-					nom, prenom, genre, LocalDate.now(), "Inconnu",
-					prix, "Tribune A", 1);
-			spectateursCrees.add(spectateur);
-			System.out.println("Spectateur " + spectateur + " créé avec succès.");
-    }
-
-    // Création d'un tournoi et préparation du tableau.
+			System.out.print("Couleur de la chemise : ");
+			String couleur = scanner.nextLine();
+			if (!couleur.trim().isEmpty())
+			{
+				spectateur.changerCouleurChemise(couleur);
+			}
+		}
+		// Les femmes ont automatiquement des lunettes (déjà initialisé dans le constructeur)
+		
+		spectateursCrees.add(spectateur);
+		System.out.println("Spectateur " + spectateur + " créé avec succès.");
+    }    // Création d'un tournoi et préparation du tableau.
     private void creerTournoi() 
     {
         System.out.println("\n--- Création d'un tournoi ---");
@@ -305,7 +482,8 @@ public class Application
 				afficherDetails = (choixDetails == 1);
 			}
 
-			tournoiEnCours.jouerMatch(matchsAVenir.get(index), mode, afficherDetails);
+			Match matchSelectionne = matchsAVenir.get(index);
+			tournoiEnCours.jouerMatch(matchSelectionne, mode, afficherDetails);
 
         if (!tournoiEnCours.estTermine() && tournoiEnCours.getMatchsAVenir().isEmpty())
         {
@@ -434,8 +612,8 @@ public class Application
         String[] prenomsH = {"Arthur","Lucas","Noah","Ethan","Adam","Liam","Hugo","Paul","Nathan","Enzo"};
         String[] prenomsF = {"Emma","Jade","Lou","Alice","Lina","Mia","Lea","Chloe","Anna","Rose"};
         String[] noms = {"Martin","Bernard","Petit","Durand","Dubois","Moreau","Laurent","Simon","Michel","Lefebvre"};
-        String[] sponsors = {"Babolat","Wilson","Head","Yonex","Lacoste"};
-        String[] coachs = {"Coach A","Coach B","Coach C","Coach D"};
+        String[] sponsors = {"Adidas","Nike","Decathlon","Rolex","Lacoste"};
+        String[] coachs = {"Jack Johnson","Emmanuel Macron","Raphael Nadal","Dwayne Johnson"};
         String[] couleurs = {"Blanc","Bleu","Rouge","Vert","Noir"};
 
         for (int i = 0; i < n; i++)
@@ -454,6 +632,218 @@ public class Application
             joueursCrees.add(joueur);
         }
         System.out.println(n + " joueur(s) ajoutés à la liste locale. Ils seront inscrits au prochain tournoi créé.");
+    }
+
+    // Nouveau choix 9 : afficher description complète d'une personne avec âge
+    private void afficherDescriptionPersonnage()
+    {
+        System.out.println("\n--- Description d'une personne ---");
+        System.out.println("1. Décrire un joueur");
+        System.out.println("2. Décrire un arbitre");
+        System.out.println("3. Décrire un spectateur");
+        System.out.print("Votre choix : ");
+        String choix = scanner.nextLine();
+        
+        switch (choix)
+        {
+            case "1" -> afficherDescriptionJoueur();
+            case "2" -> afficherDescriptionArbitre();
+            case "3" -> afficherDescriptionSpectateur();
+            default -> System.out.println("Choix invalide.");
+        }
+    }
+
+    private void afficherDescriptionJoueur()
+    {
+        // Récupérer tous les joueurs (manuels + tournoi)
+        List<Joueur> tousJoueurs = new ArrayList<>(joueursCrees);
+        if (tournoiEnCours != null)
+        {
+            tousJoueurs.addAll(tournoiEnCours.getParticipants());
+        }
+        
+        if (tousJoueurs.isEmpty())
+        {
+            System.out.println("Aucun joueur disponible. Créez-en un d'abord (option 1) ou créez un tournoi.");
+            return;
+        }
+        
+        System.out.println("\n--- Sélection d'un joueur ---");
+        for (int i = 0; i < tousJoueurs.size(); i++)
+        {
+            System.out.println((i + 1) + ". " + tousJoueurs.get(i));
+        }
+        System.out.print("Votre choix : ");
+        int index = demanderChoixUtilisateur() - 1;
+        
+        if (index < 0 || index >= tousJoueurs.size())
+        {
+            System.out.println("Choix invalide.");
+            return;
+        }
+        
+        Joueur joueur = tousJoueurs.get(index);
+        System.out.println("\n=== DESCRIPTION COMPLÈTE DU JOUEUR ===");
+        System.out.println("Nom complet : " + joueur.getPrenom() + " " + joueur.getNomCourant());
+        System.out.println("Genre : " + joueur.getGenre());
+        System.out.println("Âge : " + joueur.getAge() + " ans (" + joueur.getAgeEnJours() + " jours)");
+        System.out.println("Date de naissance : " + joueur.getDateNaissance());
+        System.out.println("Lieu de naissance : " + joueur.getLieuNaissance());
+        System.out.println("Taille : " + joueur.getTailleCm() + " cm");
+        System.out.println("Poids : " + joueur.getPoidsKg() + " kg");
+        System.out.println("Main de jeu : " + joueur.getMainDeJeu());
+        System.out.println("Sponsor : " + joueur.getSponsor());
+        System.out.println("Entraîneur : " + joueur.getEntraineur());
+        
+        
+        if (joueur.aUnSurnom())
+        {
+            System.out.println("Surnom : " + joueur.getSurnom());
+        }
+        if (joueur.estMariee())
+        {
+            System.out.println("Marié(e) avec : " + joueur.getNomDuConjoint());
+        }
+        System.out.println("\n--- Statistiques de carrière ---");
+        joueur.getStatsCarriere().afficher();
+        System.out.println("=====================================\n");
+    }
+
+    private void afficherDescriptionArbitre()
+    {
+        // Récupérer tous les arbitres (manuels + tournoi)
+        List<Arbitre> tousArbitres = new ArrayList<>(arbitresCrees);
+        if (tournoiEnCours != null)
+        {
+            tousArbitres.addAll(tournoiEnCours.getArbitres());
+        }
+        
+        if (tousArbitres.isEmpty())
+        {
+            System.out.println("Aucun arbitre disponible. Créez-en un d'abord (option 1) ou créez un tournoi.");
+            return;
+        }
+        
+        System.out.println("\n--- Sélection d'un arbitre ---");
+        for (int i = 0; i < tousArbitres.size(); i++)
+        {
+            System.out.println((i + 1) + ". " + tousArbitres.get(i));
+        }
+        System.out.print("Votre choix : ");
+        int index = demanderChoixUtilisateur() - 1;
+        
+        if (index < 0 || index >= tousArbitres.size())
+        {
+            System.out.println("Choix invalide.");
+            return;
+        }
+        
+        Arbitre arbitre = tousArbitres.get(index);
+        System.out.println("\n=== DESCRIPTION COMPLÈTE DE L'ARBITRE ===");
+        System.out.println("Nom complet : " + arbitre.getPrenom() + " " + arbitre.getNomCourant());
+        System.out.println("Genre : " + arbitre.getGenre());
+        System.out.println("Âge : " + arbitre.getAge() + " ans (" + arbitre.getAgeEnJours() + " jours)");
+        System.out.println("Date de naissance : " + arbitre.getDateNaissance());
+        System.out.println("Lieu de naissance : " + arbitre.getLieuNaissance());
+        if (arbitre.getTailleCm() > 0)
+        {
+            System.out.println("Taille : " + arbitre.getTailleCm() + " cm");
+        }
+        if (arbitre.getPoidsKg() > 0)
+        {
+            System.out.println("Poids : " + arbitre.getPoidsKg() + " kg");
+        }
+        if (arbitre.aUnSurnom())
+        {
+            System.out.println("Surnom : " + arbitre.getSurnom());
+        }
+        if (arbitre.estMariee())
+        {
+            System.out.println("Marié(e) avec : " + arbitre.getNomDuConjoint());
+        }
+        System.out.println("=========================================\n");
+    }
+
+    private void afficherDescriptionSpectateur()
+    {
+        // Récupérer tous les spectateurs (manuels + tournoi)
+        List<tennis.personnages.Spectateur> tousSpectateurs = new ArrayList<>(spectateursCrees);
+        if (tournoiEnCours != null)
+        {
+            tousSpectateurs.addAll(tournoiEnCours.getSpectateurs());
+        }
+        
+        if (tousSpectateurs.isEmpty())
+        {
+            System.out.println("Aucun spectateur disponible. Créez-en un d'abord (option 1) ou créez un tournoi.");
+            return;
+        }
+        
+        System.out.println("\n--- Sélection d'un spectateur ---");
+        for (int i = 0; i < tousSpectateurs.size(); i++)
+        {
+            System.out.println((i + 1) + ". " + tousSpectateurs.get(i));
+        }
+        System.out.print("Votre choix : ");
+        int index = demanderChoixUtilisateur() - 1;
+        
+        if (index < 0 || index >= tousSpectateurs.size())
+        {
+            System.out.println("Choix invalide.");
+            return;
+        }
+        
+        tennis.personnages.Spectateur spectateur = tousSpectateurs.get(index);
+        System.out.println("\n=== DESCRIPTION COMPLÈTE DU SPECTATEUR ===");
+        System.out.println("Nom complet : " + spectateur.getPrenom() + " " + spectateur.getNomCourant());
+        System.out.println("Genre : " + spectateur.getGenre());
+        System.out.println("Place : " + spectateur.getPlace());
+        System.out.println("Prix du billet : " + spectateur.getPrixBillet() + " €");
+        
+        // Affichage des caractéristiques spécifiques au genre
+        if (spectateur.getGenre() == Personne.Genre.HOMME)
+        {
+            System.out.println("Couleur de chemise : " + spectateur.getCouleurChemise());
+        }
+        else
+        {
+            System.out.println("Porte des lunettes : " + (spectateur.porteLunettes() ? "Oui" : "Non"));
+        }
+        
+        if (spectateur.aUnSurnom())
+        {
+            System.out.println("Surnom : " + spectateur.getSurnom());
+        }
+        if (spectateur.estMariee())
+        {
+            System.out.println("Marié(e) avec : " + spectateur.getNomDuConjoint());
+        }
+        System.out.println("==========================================\n");
+    }
+    
+    // Méthode utilitaire pour lire un entier avec validation et valeur par défaut
+    private int lireEntier(int min, int max, int defaut)
+    {
+        String saisie = scanner.nextLine();
+        if (saisie.trim().isEmpty())
+        {
+            return defaut;
+        }
+        try
+        {
+            int valeur = Integer.parseInt(saisie);
+            if (valeur < min || valeur > max)
+            {
+                System.out.println("Valeur hors limites [" + min + "-" + max + "], utilisation de " + defaut);
+                return defaut;
+            }
+            return valeur;
+        }
+        catch (NumberFormatException e)
+        {
+            System.out.println("Entrée invalide, utilisation de " + defaut);
+            return defaut;
+        }
     }
 }
 

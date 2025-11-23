@@ -121,6 +121,17 @@ public class Spectateur extends Personne implements ActionsSpectateur
     {
         return nomTribune + "-" + numeroPlace;
     }
+    
+    // Getters pour les attributs spécifiques au genre
+    public String getCouleurChemise()
+    {
+        return couleurChemise != null ? couleurChemise : "Non spécifiée";
+    }
+    
+    public boolean porteLunettes()
+    {
+        return porteLunettes;
+    }
 
     // Pour afficher les infos du spectateur.
     @Override

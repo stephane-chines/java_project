@@ -1,8 +1,10 @@
 package tennis.jeu;
 
+import java.util.List;
 import java.util.Random;
 import tennis.personnages.Arbitre;
 import tennis.personnages.Joueur;
+import tennis.personnages.Spectateur;
 import tennis.stats.StatistiquesMatch;
 
 /**
@@ -17,6 +19,7 @@ public class Jeu
     private final Arbitre arbitre;
     private final StatistiquesMatch statsJoueur1;
     private final StatistiquesMatch statsJoueur2;
+    private final List<Spectateur> spectateurs;
     private final Random generateur = new Random();
 
     private int pointsJoueur1;
@@ -24,7 +27,7 @@ public class Jeu
     private Joueur vainqueur;
 
     public Jeu(Joueur joueur1, Joueur joueur2, Joueur serveur, Arbitre arbitre,
-            StatistiquesMatch statsJoueur1, StatistiquesMatch statsJoueur2) 
+            StatistiquesMatch statsJoueur1, StatistiquesMatch statsJoueur2, List<Spectateur> spectateurs) 
     {
         this.joueur1 = joueur1;
         this.joueur2 = joueur2;
@@ -32,6 +35,7 @@ public class Jeu
         this.arbitre = arbitre;
         this.statsJoueur1 = statsJoueur1;
         this.statsJoueur2 = statsJoueur2;
+        this.spectateurs = spectateurs;
         this.pointsJoueur1 = 0;
         this.pointsJoueur2 = 0;
         this.vainqueur = null;
@@ -49,7 +53,7 @@ public class Jeu
 
             if (mode == ModeJeu.MANUEL) 
             {
-                Echange echange = new Echange(serveur, receveur, arbitre);
+                Echange echange = new Echange(serveur, receveur, arbitre, spectateurs);
                 Echange.Resultat resultat = echange.jouerPoint();
                 enregistrerServices(statsServeur, resultat);
                 if (resultat.doubleFaute)
@@ -255,6 +259,20 @@ public class Jeu
         else
         {
             receveur.sEncourager();
+        }
+        
+        // Occasionnellement, SEUL le perdant du point conteste la décision (5% de chance)
+        Joueur perdantPoint = (gagnantPoint == serveur) ? receveur : serveur;
+        if (generateur.nextDouble() < 0.05)
+        {
+            String[] motifs = {
+                "La balle était dehors !",
+                "Je conteste cette décision !",
+                "La balle a touché la ligne !",
+                "Ce n'était pas une faute !"
+            };
+            String motif = motifs[generateur.nextInt(motifs.length)];
+            perdantPoint.appelerArbitre(arbitre, motif);
         }
 
         return gagnantPoint;
