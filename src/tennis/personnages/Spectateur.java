@@ -9,13 +9,13 @@ import java.time.LocalDate;
 public class Spectateur extends Personne implements ActionsSpectateur
 {
     // Attributs spécifiques à un spectateur.
-    private double prixBillet;
-    private String nomTribune;
-    private int numeroPlace;
+    private final double prixBillet;
+    private final String nomTribune;
+    private final int numeroPlace;
     
     // Attributs qui dépendent du genre du spectateur.
-    private String couleurChemise; // Uniquement pour les hommes
-    private boolean porteLunettes; // Uniquement pour les femmes
+    private String couleurChemise; 
+    private final boolean porteLunettes; 
 
     // Constructeur pour créer un nouveau spectateur.
     public Spectateur(String nomNaissance, String prenom, Genre genre, LocalDate dateNaissance, String lieuNaissance,
@@ -39,7 +39,7 @@ public class Spectateur extends Personne implements ActionsSpectateur
         }
     }
 
-    // --- Méthodes pour les actions d'un spectateur ---
+    
     
     // Le spectateur applaudit.
     @Override
@@ -62,59 +62,18 @@ public class Spectateur extends Personne implements ActionsSpectateur
         System.out.println(getPrenom() + " n'est pas content et le fait savoir.");
     }
 
-    // Le spectateur s'endort (c'est rare).
+    // Le spectateur s'endort .
     public void dormir() 
     {
         System.out.println(getPrenom() + " s'endort.");
     }
     
-    // --- Méthodes pour les caractéristiques distinctives ---
 
-    // Pour changer la couleur de la chemise d'un spectateur homme.
-    public void changerCouleurChemise(String nouvelleCouleur) 
-    {
-        if (getGenre() == Genre.HOMME) 
-        {
-            this.couleurChemise = nouvelleCouleur;
-            System.out.println(getPrenom() + " met en évidence sa nouvelle chemise de couleur " + nouvelleCouleur + ".");
-        } 
-        else 
-        {
-            System.out.println("Seules les spectateurs hommes peuvent changer de chemise.");
-        }
-    }
-
-    // Pour indiquer si la spectatrice met ou enlève ses lunettes.
-    public void mettreOuEnleverLunettes(boolean porte) 
-    {
-        if (getGenre() == Genre.FEMME) 
-        {
-            this.porteLunettes = porte;
-            if (porte) 
-            {
-                System.out.println(getPrenom() + " met ses lunettes.");
-            } 
-            else 
-            {
-                System.out.println(getPrenom() + " enlève ses lunettes.");
-            }
-        } 
-        else 
-        {
-            System.out.println("Cette caractéristique est pour les spectatrices.");
-        }
-    }
-    
     // --- Getters et Setters pour les attributs du spectateur ---
     
     public double getPrixBillet() 
     {
         return prixBillet;
-    }
-
-    public void setPrixBillet(double prixBillet) 
-    {
-        this.prixBillet = prixBillet;
     }
 
     public String getPlace() 
@@ -131,6 +90,23 @@ public class Spectateur extends Personne implements ActionsSpectateur
     public boolean porteLunettes()
     {
         return porteLunettes;
+    }
+
+    // Permet à un spectateur homme de changer la couleur de sa chemise.
+    public void changerChemise(String nouvelleCouleur)
+    {
+        if (getGenre() != Genre.HOMME)
+        {
+            System.out.println(getPrenom() + " ne porte pas de chemise distinctive à changer.");
+            return;
+        }
+        if (nouvelleCouleur == null || nouvelleCouleur.isBlank())
+        {
+            System.out.println("Couleur invalide: la chemise reste " + getCouleurChemise());
+            return;
+        }
+        this.couleurChemise = nouvelleCouleur.trim();
+        System.out.println(getPrenom() + " change de chemise: " + this.couleurChemise);
     }
 
     // Pour afficher les infos du spectateur.

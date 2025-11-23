@@ -90,40 +90,83 @@ public class Echange
                         System.out.print("Le service est-il un ace ? (o/n) : ");
                         String reponse = scanner.next();
                         ace = reponse.equalsIgnoreCase("o");
+                        
+                        if (ace)
+                        {
+                            // Un ace donne automatiquement le point au serveur
+                            System.out.println("ACE ! Point pour " + serveur.getPrenom() + " !");
+                            vainqueurDuPoint = serveur;
+                            serveur.sEncourager();
+                            proposerReactionSpectateurs(scanner);
+                        }
+                        else
+                        {
+                            // Pas d'ace, échange normal
+                            receveur.retournerService();
+                            serveur.renvoyerBalle();
+                            System.out.print("Qui gagne l'échange ? (1: " + serveur.getPrenom() + ", 2: " + receveur.getPrenom() + ") : ");
+                            int gagnant = scanner.nextInt();
+                            vainqueurDuPoint = (gagnant == 1) ? serveur : receveur;
+                            Joueur perdantDuPoint = (vainqueurDuPoint == serveur) ? receveur : serveur;
+                            
+                            if (vainqueurDuPoint == serveur) 
+                            {
+                                serveur.sEncourager();
+                            } 
+                            else 
+                            {
+                                receveur.sEncourager();
+                            }
+                            
+                            // Proposer aux spectateurs de réagir
+                            proposerReactionSpectateurs(scanner);
+                            
+                            // Seul le perdant du point peut contester
+                            System.out.print(perdantDuPoint.getPrenom() + " conteste-t-il le point ? (o/n) : ");
+                            String contestePoint = scanner.next();
+                            scanner.nextLine(); // consommer le retour à la ligne
+                            if (contestePoint.equalsIgnoreCase("o"))
+                            {
+                                System.out.print("Motif de la contestation : ");
+                                String motif = scanner.nextLine();
+                                perdantDuPoint.appelerArbitre(arbitre, motif);
+                            }
+                        }
                     }
                     else
                     {
                         secondServiceJoue = true;
                         secondServiceReussi = true;
-                    }
-                    receveur.retournerService();
-                    serveur.renvoyerBalle();
-                    System.out.print("Qui gagne l'échange ? (1: " + serveur.getPrenom() + ", 2: " + receveur.getPrenom() + ") : ");
-                    int gagnant = scanner.nextInt();
-                    vainqueurDuPoint = (gagnant == 1) ? serveur : receveur;
-                    Joueur perdantDuPoint = (vainqueurDuPoint == serveur) ? receveur : serveur;
-                    
-                    if (vainqueurDuPoint == serveur) 
-                    {
-                        serveur.sEncourager();
-                    } 
-                    else 
-                    {
-                        receveur.sEncourager();
-                    }
-                    
-                    // Proposer aux spectateurs de réagir
-                    proposerReactionSpectateurs(scanner);
-                    
-                    // Seul le perdant du point peut contester
-                    System.out.print(perdantDuPoint.getPrenom() + " conteste-t-il le point ? (o/n) : ");
-                    String contestePoint = scanner.next();
-                    scanner.nextLine(); // consommer le retour à la ligne
-                    if (contestePoint.equalsIgnoreCase("o"))
-                    {
-                        System.out.print("Motif de la contestation : ");
-                        String motif = scanner.nextLine();
-                        perdantDuPoint.appelerArbitre(arbitre, motif);
+                        // Second service, échange normal
+                        receveur.retournerService();
+                        serveur.renvoyerBalle();
+                        System.out.print("Qui gagne l'échange ? (1: " + serveur.getPrenom() + ", 2: " + receveur.getPrenom() + ") : ");
+                        int gagnant = scanner.nextInt();
+                        vainqueurDuPoint = (gagnant == 1) ? serveur : receveur;
+                        Joueur perdantDuPoint = (vainqueurDuPoint == serveur) ? receveur : serveur;
+                        
+                        if (vainqueurDuPoint == serveur) 
+                        {
+                            serveur.sEncourager();
+                        } 
+                        else 
+                        {
+                            receveur.sEncourager();
+                        }
+                        
+                        // Proposer aux spectateurs de réagir
+                        proposerReactionSpectateurs(scanner);
+                        
+                        // Seul le perdant du point peut contester
+                        System.out.print(perdantDuPoint.getPrenom() + " conteste-t-il le point ? (o/n) : ");
+                        String contestePoint = scanner.next();
+                        scanner.nextLine(); // consommer le retour à la ligne
+                        if (contestePoint.equalsIgnoreCase("o"))
+                        {
+                            System.out.print("Motif de la contestation : ");
+                            String motif = scanner.nextLine();
+                            perdantDuPoint.appelerArbitre(arbitre, motif);
+                        }
                     }
                     break;
                 case 3:

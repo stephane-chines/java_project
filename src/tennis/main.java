@@ -18,7 +18,7 @@ import tennis.tournoi.TournoiType;
  * Application console: menus de création, création/gestion du tournoi, et navigation.
  * Conçue pour piloter rapidement une édition complète en mode console.
  */
-public class Application 
+public class main 
 {
     private final Scanner scanner = new Scanner(System.in);
     private final List<Joueur> joueursCrees = new ArrayList<>();
@@ -29,7 +29,7 @@ public class Application
     // main pour lancer tout ça.
     public static void main(String[] args) 
     {
-        Application app = new Application();
+        main app = new main();
         app.lancer();
     }
 
@@ -253,29 +253,43 @@ public class Application
 		String lieuNaissance = scanner.nextLine();
 		if (lieuNaissance.trim().isEmpty()) lieuNaissance = "Non spécifié";
 		
+		// Calculer le multiplicateur si un tournoi est en cours
+		double multiplicateur = 1.0;
+		if (tournoiEnCours != null) {
+			multiplicateur = tournoiEnCours.getMultiplicateurPrixActuel();
+		}
+		
 		System.out.println("Choisissez le type de billet :");
-		System.out.println("1. Latérale - 30€ (Tribune B)");
-		System.out.println("2. Centre court - 75€ (Tribune A)");
-		System.out.println("3. VIP - 150€ (Tribune VIP)");
+		if (multiplicateur > 1.0) {
+			System.out.printf("1. Latérale - %.2f€ (base 30€ × %.1f) (Tribune B)%n", 30.0 * multiplicateur, multiplicateur);
+			System.out.printf("2. Centre court - %.2f€ (base 75€ × %.1f) (Tribune A)%n", 75.0 * multiplicateur, multiplicateur);
+			System.out.printf("3. VIP - %.2f€ (base 150€ × %.1f) (Tribune VIP)%n", 150.0 * multiplicateur, multiplicateur);
+		} else {
+			System.out.println("1. Latérale - 30€ (Tribune B)");
+			System.out.println("2. Centre court - 75€ (Tribune A)");
+			System.out.println("3. VIP - 150€ (Tribune VIP)");
+		}
 		System.out.print("Votre choix : ");
 		String choixBillet = scanner.nextLine();
 		
-		double prix;
+		double prixBase;
 		String nomTribune;
 		switch (choixBillet) {
 			case "2" -> {
-				prix = 75.0;
+				prixBase = 75.0;
 				nomTribune = "Tribune A";
 			}
 			case "3" -> {
-				prix = 150.0;
+				prixBase = 150.0;
 				nomTribune = "Tribune VIP";
 			}
 			default -> {
-				prix = 30.0;
+				prixBase = 30.0;
 				nomTribune = "Tribune B";
 			}
 		}
+		
+		double prix = prixBase * multiplicateur;
 		
 		System.out.print("Numéro de place : ");
 		int numeroPlace = lireEntier(1, 500, 1);
@@ -328,17 +342,7 @@ public class Application
 			}
 		}
 		
-		// Si c'est un homme, demander la couleur de chemise (seulement pour hommes)
-		if (genre == Personne.Genre.HOMME)
-		{
-			System.out.print("Couleur de la chemise : ");
-			String couleur = scanner.nextLine();
-			if (!couleur.trim().isEmpty())
-			{
-				spectateur.changerCouleurChemise(couleur);
-			}
-		}
-		// Les femmes ont automatiquement des lunettes (déjà initialisé dans le constructeur)
+		// La couleur de chemise (homme) et les lunettes (femme) sont fixées au constructeur
 		
 		spectateursCrees.add(spectateur);
 		System.out.println("Spectateur " + spectateur + " créé avec succès.");
@@ -392,11 +396,13 @@ public class Application
             System.out.println("4. Lancer le tour suivant");
             System.out.println("5. Ajouter les arbitres créés au tournoi");
             System.out.println("6. Ajouter les spectateurs créés (réserve)");
-            System.out.println("7. Afficher les stats d'un joueur");
-            System.out.println("8. Jouer le tour complet (auto)");
-            System.out.println("0. Retour au menu principal");
-
-            int choix = demanderChoixUtilisateur();
+			System.out.println("7. Afficher les stats d'un joueur");
+			System.out.println("8. Jouer tout le tournoi (auto)");
+			System.out.println("9. Jouer le tour actuel (auto)");
+			if (estAuMoinsTour2()) {
+				System.out.println("10. Changer la couleur de chemise des spectateurs hommes");
+			}
+			System.out.println("0. Retour au menu principal");            int choix = demanderChoixUtilisateur();
             switch (choix) 
             {
                 case 1 -> tournoiEnCours.afficherMatchsAVenir();
@@ -412,7 +418,15 @@ public class Application
                     else { spectateursCrees.forEach(tournoiEnCours::ajouterSpectateur); System.out.println("Spectateurs ajoutés."); }
                 }
                 case 7 -> afficherStatsJoueurDepuisTournoi();
-                case 8 -> jouerTourCompletDuTournoi();
+                case 8 -> jouerToutLeTournoi();
+                case 9 -> jouerTourActuel();
+                case 10 -> {
+                    if (estAuMoinsTour2()) {
+                        changerCouleurChemiseSpectateur();
+                    } else {
+                        System.out.println("Cette option est disponible à partir du 2e tour.");
+                    }
+                }
                 case 0 -> { return; }
                 default -> throw new SaisieInvalideException("Choix invalide dans la gestion du tournoi.");
             }
@@ -522,7 +536,7 @@ public class Application
             System.out.println("Choix invalide, merci de recommencer.");
         }
     }
-    private void jouerTourCompletDuTournoi() throws SaisieInvalideException {
+    private void jouerToutLeTournoi() throws SaisieInvalideException {
         if (tournoiEnCours == null) {
             System.out.println("Aucun tournoi en cours.");
             return;
@@ -553,6 +567,35 @@ public class Application
     
         
     }
+    
+    private void jouerTourActuel() throws SaisieInvalideException {
+        if (tournoiEnCours == null) {
+            System.out.println("Aucun tournoi en cours.");
+            return;
+        }
+        if (tournoiEnCours.getMatchsAVenir().isEmpty()) {
+            System.out.println("Aucun match à jouer. Préparez le tour suivant.");
+            return;
+        }
+
+        System.out.print("Mode de jeu (1: Manuel, 2: Automatique) : ");
+        int choixMode = demanderChoixUtilisateur();
+        if (choixMode != 1 && choixMode != 2) {
+            System.out.println("Mode invalide.");
+            return;
+        }
+        ModeJeu mode = (choixMode == 1) ? ModeJeu.MANUEL : ModeJeu.AUTOMATIQUE;
+
+        boolean afficherDetails = true;
+        if (mode == ModeJeu.AUTOMATIQUE) {
+            System.out.print("Afficher le détail du match ? (1: oui, 2: non) : ");
+            int choixDetails = demanderChoixUtilisateur();
+            afficherDetails = (choixDetails == 1);
+        }
+        
+        tournoiEnCours.jouerTourCourant(mode, afficherDetails);
+    }
+    
     // Retourne le genre suivant la saisie (H/F).
     private Personne.Genre demanderGenreJoueur()
     {
@@ -821,29 +864,86 @@ public class Application
         System.out.println("==========================================\n");
     }
     
-    // Méthode utilitaire pour lire un entier avec validation et valeur par défaut
-    private int lireEntier(int min, int max, int defaut)
-    {
-        String saisie = scanner.nextLine();
-        if (saisie.trim().isEmpty())
-        {
-            return defaut;
-        }
-        try
-        {
-            int valeur = Integer.parseInt(saisie);
-            if (valeur < min || valeur > max)
-            {
-                System.out.println("Valeur hors limites [" + min + "-" + max + "], utilisation de " + defaut);
-                return defaut;
-            }
-            return valeur;
-        }
-        catch (NumberFormatException e)
-        {
-            System.out.println("Entrée invalide, utilisation de " + defaut);
-            return defaut;
-        }
-    }
+	// Vérifie si le tournoi est au moins au 2e tour
+	private boolean estAuMoinsTour2()
+	{
+		if (tournoiEnCours == null) {
+			return false;
+		}
+		return tournoiEnCours.getTourActuel() >= 2;
+	}
+	
+	// Permet aux spectateurs hommes de changer la couleur de leur chemise
+	private void changerCouleurChemiseSpectateur()
+	{
+		List<tennis.personnages.Spectateur> tousSpectateurs = new ArrayList<>();
+		if (tournoiEnCours != null) {
+			tousSpectateurs.addAll(tournoiEnCours.getSpectateurs());
+		}
+		tousSpectateurs.addAll(spectateursCrees);
+		
+		// Filtrer seulement les hommes
+		List<tennis.personnages.Spectateur> spectateursHommes = tousSpectateurs.stream()
+				.filter(s -> s.getGenre() == Personne.Genre.HOMME)
+				.toList();
+		
+		if (spectateursHommes.isEmpty()) {
+			System.out.println("Aucun spectateur homme disponible.");
+			return;
+		}
+		
+		System.out.println("\n--- Spectateurs hommes ---");
+		for (int i = 0; i < spectateursHommes.size(); i++) {
+			tennis.personnages.Spectateur s = spectateursHommes.get(i);
+			System.out.println((i + 1) + ". " + s + " - Chemise actuelle: " + s.getCouleurChemise());
+		}
+		
+		System.out.print("Sélectionnez un spectateur (0 pour annuler) : ");
+		int choix = demanderChoixUtilisateur();
+		
+		if (choix == 0) {
+			return;
+		}
+		
+		if (choix < 1 || choix > spectateursHommes.size()) {
+			System.out.println("Choix invalide.");
+			return;
+		}
+		
+		tennis.personnages.Spectateur spectateur = spectateursHommes.get(choix - 1);
+		System.out.print("Nouvelle couleur de chemise : ");
+		String nouvelleCouleur = scanner.nextLine();
+		
+		try {
+			spectateur.changerChemise(nouvelleCouleur);
+			System.out.println("Couleur de chemise changée avec succès pour " + spectateur + ".");
+		} catch (IllegalArgumentException e) {
+			System.out.println("Erreur : " + e.getMessage());
+		}
+	}
+	
+	// Méthode utilitaire pour lire un entier avec validation et valeur par défaut
+	private int lireEntier(int min, int max, int defaut)
+	{
+		String saisie = scanner.nextLine();
+		if (saisie.trim().isEmpty())
+		{
+			return defaut;
+		}
+		try
+		{
+			int valeur = Integer.parseInt(saisie);
+			if (valeur < min || valeur > max)
+			{
+				System.out.println("Valeur hors limites [" + min + "-" + max + "], utilisation de " + defaut);
+				return defaut;
+			}
+			return valeur;
+		}
+		catch (NumberFormatException e)
+		{
+			System.out.println("Entrée invalide, utilisation de " + defaut);
+			return defaut;
+		}
+	}
 }
-

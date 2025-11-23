@@ -91,12 +91,10 @@ public class JeuDecisif
                     }
                 }
             }
-            else 
+            else
             {
-                gagnantPoint = simulerPointAutomatique(serveurActuel, receveur, statsServeur);
-            }
-
-            if (gagnantPoint == joueur1)
+                gagnantPoint = simulerPointAutomatique(serveurActuel, receveur, statsServeur, arbitre);
+            }            if (gagnantPoint == joueur1)
             {
                 pointsJoueur1++;
             }
@@ -152,7 +150,7 @@ public class JeuDecisif
         }
     }
 
-    private Joueur simulerPointAutomatique(Joueur serveurActuel, Joueur receveur, StatistiquesMatch statsServeur)
+    private Joueur simulerPointAutomatique(Joueur serveurActuel, Joueur receveur, StatistiquesMatch statsServeur, Arbitre arbitre)
     {
         boolean premierServiceReussi = generateur.nextDouble() < 0.62;
 
@@ -189,6 +187,20 @@ public class JeuDecisif
         else
         {
             receveur.sEncourager();
+        }
+        
+        // Occasionnellement, SEUL le perdant du point conteste la décision (5% de chance)
+        Joueur perdantPoint = (gagnantPoint == serveurActuel) ? receveur : serveurActuel;
+        if (generateur.nextDouble() < 0.05)
+        {
+            String[] motifs = {
+                "La balle était dehors !",
+                "Je conteste cette décision !",
+                "La balle a touché la ligne !",
+                "Ce n'était pas une faute !"
+            };
+            String motif = motifs[generateur.nextInt(motifs.length)];
+            perdantPoint.appelerArbitre(arbitre, motif);
         }
 
         return gagnantPoint;

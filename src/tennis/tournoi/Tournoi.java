@@ -4,7 +4,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import tennis.erreurs.SaisieInvalideException;
 import tennis.jeu.CategorieMatch;
 import tennis.jeu.Match;
@@ -568,7 +567,7 @@ public class Tournoi
             Joueur j1 = joueursEnLice.get(i);
             Joueur j2 = joueursEnLice.get(i + 1);
             Arbitre arbitre = arbitres.get((matchsAVenir.size() + i / 2) % arbitres.size());
-            List<Spectateur> spectateurs = genererSpectateursPourMatch(categorie);
+            List<Spectateur> spectateurs = genererSpectateursPourMatch(categorie, numeroTour);
             Match match = new Match(j1, j2, arbitre, categorie,
                     (categorie == CategorieMatch.SIMPLE_HOMMES ? "Tour messieurs " : "Tour dames ") + numeroTour,
                     10, type.isTieBreakDernierSetAutorise(), spectateurs);
@@ -577,16 +576,49 @@ public class Tournoi
         return true;
     }
 
-    private List<Spectateur> genererSpectateursPourMatch(CategorieMatch categorie)
+    // Génération des spectateurs avec un multiplicateur de prix dépendant du tour
+    private List<Spectateur> genererSpectateursPourMatch(CategorieMatch categorie, int numeroTour)
     {
         List<Spectateur> liste = new ArrayList<>();
         int nombreSpectateurs = 120;
+        double multiplicateur = multiplicateurPrixPourTour(numeroTour);
+        
+        // Noms et prénoms réalistes pour les spectateurs
+        String[] nomsH = {"Martin", "Bernard", "Dubois", "Thomas", "Robert", "Petit", "Richard", "Durand", "Leroy", "Moreau",
+                          "Simon", "Laurent", "Lefebvre", "Michel", "Garcia", "David", "Bertrand", "Roux", "Vincent", "Fournier"};
+        String[] prenomsH = {"Pierre", "Jean", "Paul", "Marc", "Luc", "André", "Philippe", "Jacques", "Michel", "Alain",
+                             "Nicolas", "Julien", "Thomas", "Alexandre", "Maxime", "Antoine", "Sébastien", "Hugo", "Louis", "Gabriel"};
+        String[] nomsF = {"Dubois", "Martin", "Lefebvre", "Moreau", "Simon", "Laurent", "Garcia", "Petit", "Leroy", "Roux",
+                          "Durand", "Blanc", "Faure", "Rousseau", "Girard", "Bonnet", "Vincent", "Fournier", "Morel", "André"};
+        String[] prenomsF = {"Marie", "Sophie", "Emma", "Julie", "Laura", "Camille", "Léa", "Claire", "Sarah", "Manon",
+                             "Chloé", "Louise", "Alice", "Lucie", "Charlotte", "Jade", "Lisa", "Anaïs", "Marion", "Amélie"};
+        String[] couleurs = {"Blanche", "Bleue", "Rouge", "Verte", "Noire", "Jaune", "Orange", "Violette", "Rose", "Grise"};
+        
         for (int i = 0; i < nombreSpectateurs; i++)
         {
             Personne.Genre genre = (i % 2 == 0) ? Personne.Genre.HOMME : Personne.Genre.FEMME;
             LocalDate naissance = LocalDate.of(1970 + (i % 30), 1 + (i % 12), 1 + (i % 28));
-            Spectateur spectateur = new Spectateur("Spec" + categorie.name() + i, "Fan" + i, genre,
-                    naissance, type.getVille(), 40 + (i % 20), "Tribune " + (char)('A' + (i % 4)), 1 + i);
+            double prixBase = 40 + (i % 20);
+            double prix = Math.round(prixBase * multiplicateur * 100.0) / 100.0;
+            
+            String nom, prenom;
+            if (genre == Personne.Genre.HOMME) {
+                nom = nomsH[i % nomsH.length];
+                prenom = prenomsH[i % prenomsH.length];
+            } else {
+                nom = nomsF[i % nomsF.length];
+                prenom = prenomsF[i % prenomsF.length];
+            }
+            
+            Spectateur spectateur = new Spectateur(nom, prenom, genre,
+                    naissance, type.getVille(), prix, "Tribune " + (char)('A' + (i % 4)), 1 + i);
+            
+            // Attribuer une couleur de chemise aléatoire aux hommes
+            if (genre == Personne.Genre.HOMME) {
+                String couleur = couleurs[i % couleurs.length];
+                spectateur.changerChemise(couleur);
+            }
+            
             liste.add(spectateur);
         }
         // Si des spectateurs manuels sont disponibles, en intégrer une petite poignée pour l'ambiance
@@ -596,6 +628,102 @@ public class Tournoi
             liste.add(reservesSpectateurs.get(i));
         }
         return liste;
+    }
+
+    // Multiplicateur de prix selon le numéro de tour (1 = 128e, 2 = 64e, 3 = 32e, 4 = 16e, 5 = QF, 6 = SF, 7 = Finale)
+    private double multiplicateurPrixPourTour(int numeroTour)
+    {
+        return switch (numeroTour) {
+            case 1 -> 1.0;      // 1er tour (128 joueurs)
+            case 2 -> 1.10;     // 64e
+            case 3 -> 1.20;     // 32e
+            case 4 -> 1.35;     // 16e
+            case 5 -> 1.55;     // Quarts
+            case 6 -> 1.85;     // Demis
+            case 7 -> 2.20;     // Finale
+            default -> 2.40;    // Sécurité pour tours au-delà (rare)
+        };
+    }
+
+    // Retourne le numéro du tour actuel (le plus avancé entre hommes et femmes)
+    public int getTourActuel()
+    {
+        return Math.max(numeroTourHommes, numeroTourFemmes);
+    }
+
+    // Expose le multiplicateur actuel (utilisation lors de la création manuelle d'un spectateur)
+    public double getMultiplicateurPrixActuel()
+    {
+        int tourActuel = getTourActuel();
+        if (tourActuel <= 0)
+        {
+            tourActuel = 1; // avant préparation du premier tour
+        }
+        return multiplicateurPrixPourTour(tourActuel);
+    }
+
+    // Libellé lisible du tour hommes actuel
+    public String getLibelleTourHommes()
+    {
+        return libelleTour(numeroTourHommes, tableauHommesTermine);
+    }
+
+    // Libellé lisible du tour femmes actuel
+    public String getLibelleTourFemmes()
+    {
+        return libelleTour(numeroTourFemmes, tableauFemmesTermine);
+    }
+
+    private String libelleTour(int numeroTour, boolean tableauTermine)
+    {
+        if (tournoiTermine && tableauTermine)
+        {
+            return "Terminé";
+        }
+        return switch (numeroTour) {
+            case 0 -> "Non démarré";
+            case 1 -> "1er tour (128)";
+            case 2 -> "2e tour (64)";
+            case 3 -> "3e tour (32)";
+            case 4 -> "Huitièmes (16)";
+            case 5 -> "Quarts de finale";
+            case 6 -> "Demi-finales";
+            case 7 -> "Finale";
+            default -> tableauTermine ? "Terminé" : "Phase inconnue";
+        };
+    }
+
+    // Joue seulement les matchs du tour en cours (liste actuelle matchsAVenir)
+    public void jouerTourCourant(ModeJeu mode, boolean afficherDetails) throws SaisieInvalideException
+    {
+        if (matchsAVenir.isEmpty())
+        {
+            System.out.println("Aucun match à jouer dans le tour courant. Préparez le tour suivant.");
+            return;
+        }
+        List<Match> aJouer = new ArrayList<>(matchsAVenir);
+        System.out.println("Début de l'exécution automatique du tour en cours: " + aJouer.size() + " match(s).");
+        for (Match match : aJouer)
+        {
+            if (!matchsAVenir.contains(match))
+            {
+                continue;
+            }
+            jouerMatch(match, mode, afficherDetails);
+        }
+        System.out.println("Tour en cours terminé.");
+        // Préparer immédiatement le tour suivant si le tournoi n'est pas terminé
+        if (!tournoiTermine)
+        {
+            System.out.println("Préparation automatique du tour suivant...");
+            lancerProchainTour();
+            if (!tournoiTermine)
+            {
+                System.out.println("Nouveau tour prêt: Hommes=" + getLibelleTourHommes() + " | Femmes=" + getLibelleTourFemmes());
+                System.out.println("Multiplicateur prix billets actuel: " + getMultiplicateurPrixActuel());
+                System.out.println("Les spectateurs hommes peuvent maintenant changer de chemise avant les prochains matchs (option dédiée)." );
+            }
+        }
     }
 
     private boolean resteMatchPourCategorie(CategorieMatch categorie)

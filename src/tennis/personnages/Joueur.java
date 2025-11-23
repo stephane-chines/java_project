@@ -6,9 +6,9 @@ import tennis.stats.StatistiquesCarriere;
 /**
  * Représentation d'un joueur de tennis.
  * Étend {@link Personne} et ajoute main de jeu, sponsor, entraîneur, classement, tenue, réputation,
- * ainsi que des actions possibles en match et en tant que spectateur.
+ * ainsi que des actions possibles en match.
  */
-public class Joueur extends Personne implements ActionsSpectateur
+public class Joueur extends Personne
 {
 
    
@@ -136,25 +136,6 @@ public class Joueur extends Personne implements ActionsSpectateur
     public StatistiquesCarriere getStatsCarriere()
     {
         return statsCarriere;
-    }
-
-    // Actions réalisables par un joueur lorsqu’il est spectateur.
-    @Override
-    public void applaudir() 
-    {
-        System.out.println("Le joueur " + getPrenom() + " applaudit .");
-    }
-
-    @Override
-    public void crier() 
-    {
-        System.out.println("Le joueur " + getPrenom() + " encourage  ");
-    }
-
-    @Override
-    public void huer() 
-    {
-        System.out.println(getPrenom() + " (dans les gradins) n'est pas d'accord avec cette décision !");
     }
 
     // Actions en cours de match pour rendre la simulation plus vivante.

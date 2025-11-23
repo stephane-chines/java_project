@@ -177,7 +177,7 @@ public class Jeu
             return "Avantage " + receveur.getPrenom();
         }
 
-        return convertirPoint(pointsServeur) + " - " + convertirPoint(pointsReceveur);
+        return serveur.getPrenom() + " " + convertirPoint(pointsServeur) + " - " + convertirPoint(pointsReceveur) + " " + receveur.getPrenom();
     }
     
     private String convertirPoint(int point) 
