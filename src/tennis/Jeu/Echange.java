@@ -98,6 +98,18 @@ public class Echange
                             vainqueurDuPoint = serveur;
                             serveur.sEncourager();
                             proposerReactionSpectateurs(scanner);
+
+                            
+                            Joueur perdantDuPoint = receveur;
+                            System.out.print(perdantDuPoint.getPrenom() + " conteste-t-il le point ? (o/n) : ");
+                            String contestePoint = scanner.next();
+                            scanner.nextLine(); 
+                            if (contestePoint.equalsIgnoreCase("o"))
+                            {
+                                System.out.print("Motif de la contestation : ");
+                                String motif = scanner.nextLine();
+                                perdantDuPoint.appelerArbitre(arbitre, motif);
+                            }
                         }
                         else
                         {
