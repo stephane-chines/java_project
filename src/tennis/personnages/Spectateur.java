@@ -95,18 +95,30 @@ public class Spectateur extends Personne implements ActionsSpectateur
     // Permet à un spectateur homme de changer la couleur de sa chemise.
     public void changerChemise(String nouvelleCouleur)
     {
+        changerChemise(nouvelleCouleur, true);
+    }
+    
+    // Version avec contrôle de l'affichage (pour génération automatique silencieuse)
+    public void changerChemise(String nouvelleCouleur, boolean afficher)
+    {
         if (getGenre() != Genre.HOMME)
         {
-            System.out.println(getPrenom() + " ne porte pas de chemise distinctive à changer.");
+            if (afficher) {
+                System.out.println(getPrenom() + " ne porte pas de chemise distinctive à changer.");
+            }
             return;
         }
         if (nouvelleCouleur == null || nouvelleCouleur.isBlank())
         {
-            System.out.println("Couleur invalide: la chemise reste " + getCouleurChemise());
+            if (afficher) {
+                System.out.println("Couleur invalide: la chemise reste " + getCouleurChemise());
+            }
             return;
         }
         this.couleurChemise = nouvelleCouleur.trim();
-        System.out.println(getPrenom() + " change de chemise: " + this.couleurChemise);
+        if (afficher) {
+            System.out.println(getPrenom() + " change de chemise: " + this.couleurChemise);
+        }
     }
 
     // Pour afficher les infos du spectateur.

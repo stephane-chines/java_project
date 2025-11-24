@@ -1,10 +1,10 @@
 package tennis.son;
 
-import javax.sound.sampled.*;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import javax.sound.sampled.*;
 
 /**
  * Utilitaire pour jouer un fichier WAV une seule fois.
@@ -28,7 +28,7 @@ public final class Son {
     }
 
     public static void playStart() {
-        // chemin adapté si tes fichiers sont sous le package tennis.son.externe
+        
         playOnce("/tennis/son/externe/trompette.wav");
     }
 
@@ -36,19 +36,16 @@ public final class Son {
         playOnce("/tennis/son/externe/victoire.wav");
     }
 
-    /**
-     * Joue une ressource WAV une fois (non bloquant) si activerSon == true.
-     * resourcePath : ex "/tennis/son/externe/trompette.wav" ou "/sounds/minimal/start.wav"
-     */
+    // le path est normalemnent du style "/tennis/son/externe/trompette.wav"
     public static void playOnce(String resourcePath) {
         if (!activerSon || resourcePath == null) return;
 
         AudioInputStream ais = null;
 
-        // 1) tenter classpath (plusieurs candidats)
+        
         String[] classpathCandidates = new String[] {
             resourcePath,
-            // si resourcePath commence par /, essayer aussi préfixe /tennis si nécessaire
+            
             resourcePath.startsWith("/") ? "/tennis" + resourcePath : "/tennis/" + resourcePath
         };
 
@@ -61,20 +58,20 @@ public final class Son {
                     break;
                 }
             } catch (Exception e) {
-                // silent fail, fermer si nécessaire puis essayer le suivant
+                
                 try { if (isStream != null) isStream.close(); } catch (IOException ignored) {}
                 isStream = null;
                 ais = null;
             }
         }
 
-        // 2) fallback disque : tester plusieurs emplacements relatifs au projet
+        //permet de chercher les fichiers sur une plus grande variété de chemins disques
         if (ais == null) {
             String[] diskBases = new String[] {
                 "tennis/resources",
                 "tennis/tennis/resources",
                 "resources",
-                "" // tenter directement resourcePath relatif à la racine du projet
+                "" 
             };
             File found = null;
             for (String base : diskBases) {
@@ -102,7 +99,7 @@ public final class Son {
             return;
         }
 
-        // Lecture WAV non bloquante
+        
         try {
             final AudioInputStream aisForThread = ais;
             final Clip clip = AudioSystem.getClip();
@@ -123,7 +120,7 @@ public final class Son {
             worker.start();
         } catch (LineUnavailableException | IOException e) {
             try { if (ais != null) ais.close(); } catch (IOException ignored) {}
-            // silent fail
+            
         }
     }
 }

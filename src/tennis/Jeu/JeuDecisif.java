@@ -29,7 +29,7 @@ public class JeuDecisif
     public JeuDecisif(Joueur joueur1, Joueur joueur2, Joueur serveurInitial, Arbitre arbitre,
             StatistiquesMatch statsJoueur1, StatistiquesMatch statsJoueur2, List<Spectateur> spectateurs) 
     {
-        // Petit contrôle: mieux vaut bloquer tôt que réparer tard
+        
         if (joueur1 == null || joueur2 == null || arbitre == null || serveurInitial == null
                 || statsJoueur1 == null || statsJoueur2 == null) {
             throw new IllegalArgumentException("Arguments null interdits");
@@ -49,13 +49,13 @@ public class JeuDecisif
         this.spectateurs = spectateurs;
     }
 
-    // Joue le tie-break jusqu'à trouver un gagnant. 
+     
     public void jouer(ModeJeu mode, boolean afficherDetails) 
     {
         if (mode == ModeJeu.MANUEL || afficherDetails)
         {
             System.out.println("--- Début du Jeu Décisif (Tie-Break) ---");
-            // Petite touche d'ambiance: l'arbitre annonce aussi le début du tie-break
+            
             arbitre.annoncerDebutTieBreak(joueur1, joueur2);
         }
 
@@ -189,7 +189,7 @@ public class JeuDecisif
             receveur.sEncourager();
         }
         
-        // Occasionnellement, SEUL le perdant du point conteste la décision (5% de chance)
+        // Occasionnellement en automatique, SEUL le perdant du point conteste la décision (5% de chance)
         Joueur perdantPoint = (gagnantPoint == serveurActuel) ? receveur : serveurActuel;
         if (generateur.nextDouble() < 0.05)
         {
@@ -216,7 +216,7 @@ public class JeuDecisif
         return 150 + generateur.nextDouble() * 30;
     }
 
-    // Retourne celui qui a gagné ce tie-break (null si non joué).
+    // Retourne celui qui a gagné ce tie-break
     public Joueur getVainqueur() 
     {
         return vainqueur;
@@ -232,7 +232,7 @@ public class JeuDecisif
         return pointsJoueur2;
     }
 
-    // Score lisible du tie-break, ex: "7–4".
+    
     public String getScoreString() {
         return pointsJoueur1 + "–" + pointsJoueur2;
     }

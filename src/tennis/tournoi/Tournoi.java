@@ -613,10 +613,10 @@ public class Tournoi
             Spectateur spectateur = new Spectateur(nom, prenom, genre,
                     naissance, type.getVille(), prix, "Tribune " + (char)('A' + (i % 4)), 1 + i);
             
-            // Attribuer une couleur de chemise aléatoire aux hommes
+            // Attribuer une couleur de chemise aléatoire aux hommes (sans affichage)
             if (genre == Personne.Genre.HOMME) {
                 String couleur = couleurs[i % couleurs.length];
-                spectateur.changerChemise(couleur);
+                spectateur.changerChemise(couleur, false);
             }
             
             liste.add(spectateur);
@@ -634,18 +634,18 @@ public class Tournoi
     private double multiplicateurPrixPourTour(int numeroTour)
     {
         return switch (numeroTour) {
-            case 1 -> 1.0;      // 1er tour (128 joueurs)
-            case 2 -> 1.10;     // 64e
-            case 3 -> 1.20;     // 32e
-            case 4 -> 1.35;     // 16e
-            case 5 -> 1.55;     // Quarts
-            case 6 -> 1.85;     // Demis
-            case 7 -> 2.20;     // Finale
-            default -> 2.40;    // Sécurité pour tours au-delà (rare)
+            case 1 -> 1.0;      
+            case 2 -> 1.15;     
+            case 3 -> 1.35;     
+            case 4 -> 1.65;     
+            case 5 -> 2.10;     
+            case 6 -> 2.75;     
+            case 7 -> 3.50;     
+            default -> 4.00;    
         };
     }
 
-    // Retourne le numéro du tour actuel (le plus avancé entre hommes et femmes)
+   
     public int getTourActuel()
     {
         return Math.max(numeroTourHommes, numeroTourFemmes);
@@ -657,18 +657,18 @@ public class Tournoi
         int tourActuel = getTourActuel();
         if (tourActuel <= 0)
         {
-            tourActuel = 1; // avant préparation du premier tour
+            tourActuel = 1; 
         }
         return multiplicateurPrixPourTour(tourActuel);
     }
 
-    // Libellé lisible du tour hommes actuel
+    
     public String getLibelleTourHommes()
     {
         return libelleTour(numeroTourHommes, tableauHommesTermine);
     }
 
-    // Libellé lisible du tour femmes actuel
+    
     public String getLibelleTourFemmes()
     {
         return libelleTour(numeroTourFemmes, tableauFemmesTermine);

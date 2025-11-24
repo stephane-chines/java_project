@@ -154,7 +154,7 @@ public class Match
             int ptsDeltaJ1 = statsApresJ1.getTotalPointsRemportes() - ptsAvantJ1;
             int ptsDeltaJ2 = statsApresJ2.getTotalPointsRemportes() - ptsAvantJ2;
 
-// Notifier les spectateurs selon ce qui s'est passé dans le set
+
             notifySpectatorsAfterSet(gagnantDuSet, joueur1, joueur2,
             acesDeltaJ1, acesDeltaJ2, dfDeltaJ1, dfDeltaJ2, ptsDeltaJ1, ptsDeltaJ2, set.getScore());
 
@@ -167,7 +167,7 @@ public class Match
             scoreSetsJoueur2++;
             }
 
-// Déterminer proprement le premier serveur du prochain set
+//Déterminer le prochain server
             Joueur prochainServeur = set.getPremierServeurProchainSet();
             if (prochainServeur != null)
             {
@@ -194,7 +194,7 @@ public class Match
             perdant.crierDefaite();
         }
         notifySpectatorsAfterMatch(vainqueur);
-        // Créditer les points au vainqueur
+        // ajouter les points au vainqueur
         vainqueur.getStatsCarriere().ajouterPointsATP(pointsATPgagnes);
     }
         
@@ -264,7 +264,6 @@ public class Match
         }
 
     // Calcul d'une appréciation finale simple en fonction des statistiques cumulées du match
-    // (ici on se base sur l'existence du vainqueur et la taille du public)
         int publicSize = (spectateurs == null) ? 0 : spectateurs.size();
         String name = vainqueur.getPrenom() + " " + vainqueur.getNomCourant();
 
@@ -295,7 +294,7 @@ public class Match
         return perdant;
     }
 
-	/** Retourne la catégorie du match (simple H/F). */
+	
     public CategorieMatch getCategorie()
     {
         return categorie;
@@ -306,17 +305,13 @@ public class Match
         return vainqueur;
     }
     
-	/**
-	 * Score final lisible (ou message si le match n'est pas terminé).
-	 *
-	 * @return ex: "Score: 6-4 3-6 7-6 (2 - 1)"
-	 */
+	
     public String getScoreFinal()
     {
         if (vainqueur == null) {
             return "Match non terminé.";
         }
-        // exemple: "Score: 6-4 3-6 7-6"
+        
         String sets = historiqueSets.stream().collect(Collectors.joining(" "));
         return "Score: " + sets + " (" + scoreSetsJoueur1 + " - " + scoreSetsJoueur2 + ")";
     }
@@ -332,7 +327,7 @@ public class Match
         return statistiquesParJoueur.get(joueur);
     }
 
-	/** Map des statistiques pour les deux joueurs (copie non modifiable). */
+	/** Map des statistiques pour les deux joueurs ( non modifiable). */
     public Map<Joueur, StatistiquesMatch> getStatistiquesParJoueur()
     {
         return Collections.unmodifiableMap(statistiquesParJoueur);

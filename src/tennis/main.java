@@ -882,7 +882,7 @@ public class main
 		}
 		tousSpectateurs.addAll(spectateursCrees);
 		
-		// Filtrer seulement les hommes
+		
 		List<tennis.personnages.Spectateur> spectateursHommes = tousSpectateurs.stream()
 				.filter(s -> s.getGenre() == Personne.Genre.HOMME)
 				.toList();

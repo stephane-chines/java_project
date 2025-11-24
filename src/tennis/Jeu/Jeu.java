@@ -261,7 +261,7 @@ public class Jeu
             receveur.sEncourager();
         }
         
-        // Occasionnellement, SEUL le perdant du point conteste la décision (5% de chance)
+        // Occasionnellement en automatique, SEUL le perdant du point conteste la décision (5% de chance)
         Joueur perdantPoint = (gagnantPoint == serveur) ? receveur : serveur;
         if (generateur.nextDouble() < 0.05)
         {
@@ -280,12 +280,12 @@ public class Jeu
 
     private double genererVitessePremierService()
     {
-        return 180 + generateur.nextDouble() * 40; // 180 à 220 km/h
+        return 180 + generateur.nextDouble() * 40; 
     }
 
     private double genererVitesseSecondService()
     {
-        return 150 + generateur.nextDouble() * 30; // 150 à 180 km/h
+        return 150 + generateur.nextDouble() * 30; 
     }
 
     private boolean estBalleDeBreak(Joueur serveurActuel)

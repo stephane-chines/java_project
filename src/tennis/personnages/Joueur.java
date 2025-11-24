@@ -139,31 +139,31 @@ public class Joueur extends Personne
     }
 
     // Actions en cours de match pour rendre la simulation plus vivante.
-    // Fais semblant de lancer un service.
+    
     public void servir() 
     {
         System.out.println(getPrenom() + " se prépare à servir...");
     }
 
-    // Fais semblant de se préparer au retour.
+    
     public void retournerService() 
     {
         System.out.println(getPrenom() + " se met en position pour retourner le service.");
     }
     
-    // Même chose pour le renvoi de balle.
+    
     public void renvoyerBalle() 
     {
         System.out.println(getPrenom() + " frappe un coup puissant !");
     }
 
-    // Petite faute directe pour la forme.
+    
     public void faireFauteDirecte() 
     {
         System.out.println("Faute directe de " + getPrenom() + " ! La balle est dans le filet.");
     }
 
-    // Appelle l'arbitre quand ça râle.
+    // Appelle l'arbitre
     public void appelerArbitre(Arbitre arbitre, String motif) 
     {
         System.out.println(getPrenom() + " n'est pas d'accord et interpelle l'arbitre: '" + motif + "' !");
@@ -176,7 +176,7 @@ public class Joueur extends Personne
     public static boolean isAfficherEncouragements() {
         return afficherEncouragements;
     }
-    // Petit boost perso.
+    
     public void sEncourager() 
     {   
         if (!afficherEncouragements) {
@@ -186,7 +186,7 @@ public class Joueur extends Personne
         System.out.println(getPrenom() + " se motive: 'Allez !!'");
     }
 
-    // Pense à boire un coup.
+    
     public void boire() 
     {
         System.out.println(getPrenom() + " boit un peu.");
